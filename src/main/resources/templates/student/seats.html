@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Seat Reservation')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('seats')}"></aside>
+        <main class="main-content">
+            <!-- Flash Message Alerts -->
+            <div th:replace="~{common/layout :: alerts}"></div>
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Library Study Carrel & Seat Booking</h2>
+                    <p class="text-muted mb-0">Reserve individual study desks and research carrels across library floors.</p>
+                </div>
+            </div>
+
+            <!-- Date Selector and Legend Bar -->
+            <div class="card card-custom p-3 mb-4 bg-white">
+                <form th:action="@{/student/seats}" method="get" class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-secondary mb-1">Select Reservation Date</label>
+                        <input type="date" name="date" class="form-control" th:value="${selectedDate}"
+                               th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                               onchange="this.form.submit()">
+                    </div>
+                    <div class="col-md-8 d-flex flex-wrap gap-3 align-items-center justify-content-md-end pt-md-3">
+                        <span class="small d-flex align-items-center gap-1"><span class="badge bg-success">&nbsp;</span> Available</span>
+                        <span class="small d-flex align-items-center gap-1"><span class="badge bg-secondary">&nbsp;</span> Reserved / Unavailable</span>
+                        <span class="small d-flex align-items-center gap-1"><span class="badge bg-danger">&nbsp;</span> Maintenance</span>
+                        <span class="small text-muted ms-2"><i class="bi bi-info-circle me-1"></i> Recorded availability only</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Seat Booking Modal / Form -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-8">
+                    <div class="card card-custom p-4">
+                        <h5 class="fw-bold text-dark mb-3">
+                            <i class="bi bi-layout-text-window me-2 text-primary"></i> Available Desks for <span class="text-primary" th:text="${selectedDate}">Date</span>
+                        </h5>
+
+                        <div class="seat-grid">
+                            <div th:each="seat : ${seats}"
+                                 class="seat-item"
+                                 th:classappend="${seat.status != 'ACTIVE'} ? 'maintenance' : ''"
+                                 th:data-seat-id="${seat.id}"
+                                 th:data-seat-number="${seat.seatNumber}"
+                                 th:data-seat-floor="${seat.floor}"
+                                 th:data-seat-section="${seat.section}"
+                                 onclick="selectSeat(this)">
+                                <div class="seat-number" th:text="${seat.seatNumber}">S-101</div>
+                                <div class="seat-meta" th:text="${seat.floor}">1st Floor</div>
+                                <div class="d-flex justify-content-center gap-1 mt-2 text-muted small">
+                                    <i th:if="${seat.hasPowerOutlet}" class="bi bi-plug text-primary" title="Power Outlet Available"></i>
+                                    <i th:if="${seat.isAccessible}" class="bi bi-person-wheelchair text-success" title="Accessible Desk"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instant Booking Card -->
+                <div class="col-lg-4">
+                    <div class="card card-custom p-4 shadow-sm">
+                        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-calendar-plus me-2 text-primary"></i> Book A Study Desk</h5>
+
+                        <form th:action="@{/student/reserve-seat}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <input type="hidden" name="reservationDate" th:value="${selectedDate}" />
+
+                            <div class="mb-3">
+                                <label for="seatId" class="form-label small fw-semibold text-secondary">Choose Seat</label>
+                                <select name="seatId" id="seatId" class="form-select" required>
+                                    <option value="">-- Choose Carrel --</option>
+                                    <option th:each="s : ${seats}" th:value="${s.id}" th:text="${s.seatNumber} + ' (' + ${s.floor} + ' - ' + ${s.section} + ')'"></option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="timeSlot" class="form-label small fw-semibold text-secondary">Select Time Slot</label>
+                                <select name="timeSlot" id="timeSlot" class="form-select" required>
+                                    <option value="">-- Choose Time Window --</option>
+                                    <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
+                                </select>
+                            </div>
+
+                            <div class="alert alert-light border small text-muted mb-3">
+                                <i class="bi bi-shield-check me-1 text-primary"></i> Guaranteed booking prevents double reservations atomically. Cancellations allowed up to time of slot.
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-pill">
+                                <i class="bi bi-check-circle me-1"></i> Confirm Reservation
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Active and Past Reservations -->
+            <div class="card card-custom">
+                <div class="card-header fw-bold text-dark">
+                    <i class="bi bi-clock-history me-2 text-secondary"></i> My Desk Reservations
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(userReservations)}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Seat Number</th>
+                                    <th>Floor & Section</th>
+                                    <th>Date</th>
+                                    <th>Time Slot</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="r : ${userReservations}">
+                                    <td class="fw-bold text-dark" th:text="${r.seat.seatNumber}">S-101</td>
+                                    <td th:text="${r.seat.floor} + ' - ' + ${r.seat.section}">1st Floor</td>
+                                    <td th:text="${r.reservationDate}">Date</td>
+                                    <td th:text="${r.timeSlot}">Slot</td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${r.status.name() == 'CONFIRMED'} ? 'bg-success' :
+                                                             (${r.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-secondary')"
+                                              th:text="${r.status}">Status</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <form th:if="${r.status.name() == 'CONFIRMED'}" th:action="@{/student/cancel-reservation/{id}(id=${r.id})}" method="post" class="d-inline">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this reservation?');">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${#lists.isEmpty(userReservations)}" class="p-3 text-center text-muted small">
+                        No previous seat bookings recorded.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function selectSeat(element) {
+            const id = element.getAttribute('data-seat-id');
+            const number = element.getAttribute('data-seat-number');
+            const floor = element.getAttribute('data-seat-floor');
+            const section = element.getAttribute('data-seat-section');
+            openSeatModal(id, number, floor, section);
+        }
+
+        function openSeatModal(id, number, floor, section) {
+            const selectEl = document.getElementById('seatId');
+            if (selectEl) {
+                selectEl.value = id;
+                selectEl.scrollIntoView({ behavior: 'smooth' });
+                showNotification(`Selected Seat ${number} (${floor}) in booking form.`, "info");
+            }
+        }
+    </script>
+</body>
+</html>

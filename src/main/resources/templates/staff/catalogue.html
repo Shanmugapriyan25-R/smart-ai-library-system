@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Staff Inventory Catalogue')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('staff-catalogue')}"></aside>
+        <main class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Library Inventory Catalogue</h2>
+                    <p class="text-muted mb-0">Search book records, shelf locations, and live stock quantities.</p>
+                </div>
+            </div>
+
+            <!-- Search Form -->
+            <div class="card card-custom p-3 mb-4 bg-white">
+                <form th:action="@{/staff/catalogue}" method="get" class="row g-2 align-items-center">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" name="query" class="form-control" placeholder="Search by title, author, ISBN, shelf..." th:value="${query}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Search</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card card-custom">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ISBN</th>
+                                    <th>Title & Author</th>
+                                    <th>Category</th>
+                                    <th>Shelf</th>
+                                    <th>Stock (Available/Total)</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="b : ${books.content}">
+                                    <td><span class="badge bg-light text-dark border" th:text="${b.isbn}">ISBN</span></td>
+                                    <td>
+                                        <div class="fw-semibold text-dark" th:text="${b.title}">Title</div>
+                                        <div class="small text-muted" th:text="${b.author}">Author</div>
+                                    </td>
+                                    <td th:text="${b.category.name}">Category</td>
+                                    <td><span class="badge bg-light text-primary border" th:text="${b.locationShelf ?: 'Main Stacks'}">Shelf</span></td>
+                                    <td>
+                                        <strong th:text="${b.availableCopies}">0</strong> / <span th:text="${b.totalCopies}">0</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${b.availableCopies > 0}" class="badge bg-success">In Stock</span>
+                                        <span th:unless="${b.availableCopies > 0}" class="badge bg-danger">All Copies Loaned</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

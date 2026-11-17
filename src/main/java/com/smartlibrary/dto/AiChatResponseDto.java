@@ -1,0 +1,82 @@
+package com.smartlibrary.dto;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class AiChatResponseDto {
+
+    private String answer;
+    private boolean ragUsed;
+    private boolean fallbackMode;
+    private String providerStatus;
+    private List<BookReferenceDto> matchedBooks = new ArrayList<>();
+    private List<String> sourceReferences = new ArrayList<>();
+
+    public AiChatResponseDto() {}
+
+    public AiChatResponseDto(String answer, boolean ragUsed, boolean fallbackMode, String providerStatus) {
+        this.answer = answer;
+        this.ragUsed = ragUsed;
+        this.fallbackMode = fallbackMode;
+        this.providerStatus = providerStatus;
+    }
+
+    public static class BookReferenceDto {
+        private Long id;
+        private String isbn;
+        private String title;
+        private String author;
+        private String category;
+        private int availableCopies;
+        private int totalCopies;
+        private String locationShelf;
+
+        public BookReferenceDto() {}
+
+        public BookReferenceDto(Long id, String isbn, String title, String author, String category, int availableCopies, int totalCopies, String locationShelf) {
+            this.id = id;
+            this.isbn = isbn;
+            this.title = title;
+            this.author = author;
+            this.category = category;
+            this.availableCopies = availableCopies;
+            this.totalCopies = totalCopies;
+            this.locationShelf = locationShelf;
+        }
+
+        public Long getId() { return id; }
+        public void setId(Long id) { this.id = id; }
+        public String getIsbn() { return isbn; }
+        public void setIsbn(String isbn) { this.isbn = isbn; }
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public String getAuthor() { return author; }
+        public void setAuthor(String author) { this.author = author; }
+        public String getCategory() { return category; }
+        public void setCategory(String category) { this.category = category; }
+        public int getAvailableCopies() { return availableCopies; }
+        public void setAvailableCopies(int availableCopies) { this.availableCopies = availableCopies; }
+        public int getTotalCopies() { return totalCopies; }
+        public void setTotalCopies(int totalCopies) { this.totalCopies = totalCopies; }
+        public String getLocationShelf() { return locationShelf; }
+        public void setLocationShelf(String locationShelf) { this.locationShelf = locationShelf; }
+    }
+
+    public String getAnswer() { return answer; }
+    public void setAnswer(String answer) { this.answer = answer; }
+
+    public boolean isRagUsed() { return ragUsed; }
+    public void setRagUsed(boolean ragUsed) { this.ragUsed = ragUsed; }
+
+    public boolean isFallbackMode() { return fallbackMode; }
+    public void setFallbackMode(boolean fallbackMode) { this.fallbackMode = fallbackMode; }
+
+    public String getProviderStatus() { return providerStatus; }
+    public void setProviderStatus(String providerStatus) { this.providerStatus = providerStatus; }
+
+    public List<BookReferenceDto> getMatchedBooks() { return matchedBooks; }
+    public void setMatchedBooks(List<BookReferenceDto> matchedBooks) { this.matchedBooks = matchedBooks; }
+
+    public List<String> getSourceReferences() { return sourceReferences; }
+    public void setSourceReferences(List<String> sourceReferences) { this.sourceReferences = sourceReferences; }
+}

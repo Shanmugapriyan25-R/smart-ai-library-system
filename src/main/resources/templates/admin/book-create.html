@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Add New Book to Catalogue')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('admin-books')}"></aside>
+        <main class="main-content">
+            <div class="mb-4">
+                <a th:href="@{/admin/books}" class="text-muted text-decoration-none small">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Books Catalogue
+                </a>
+                <h2 class="fw-bold text-dark mt-2 mb-1">Add New Book to Library</h2>
+                <p class="text-muted mb-0">Record physical volumes, assign shelf locations, and index for semantic search.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-9">
+                    <div class="card card-custom p-4">
+                        <form th:action="@{/admin/books/create}" th:object="${bookDto}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="isbn" class="form-label small fw-semibold text-secondary">ISBN-13</label>
+                                    <input type="text" th:field="*{isbn}" class="form-control" id="isbn" required placeholder="e.g. 978-0134685991">
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="categoryId" class="form-label small fw-semibold text-secondary">Category</label>
+                                    <select th:field="*{categoryId}" class="form-select" id="categoryId" required>
+                                        <option value="">-- Select Category --</option>
+                                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                                    </select>
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="title" class="form-label small fw-semibold text-secondary">Book Title</label>
+                                <input type="text" th:field="*{title}" class="form-control" id="title" required placeholder="Full title of the book">
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="author" class="form-label small fw-semibold text-secondary">Author(s)</label>
+                                <input type="text" th:field="*{author}" class="form-control" id="author" required placeholder="e.g. Joshua Bloch">
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label for="publisher" class="form-label small fw-semibold text-secondary">Publisher</label>
+                                    <input type="text" th:field="*{publisher}" class="form-control" id="publisher" placeholder="e.g. Addison-Wesley">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="publicationYear" class="form-label small fw-semibold text-secondary">Publication Year</label>
+                                    <input type="number" th:field="*{publicationYear}" class="form-control" id="publicationYear" placeholder="2023">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="edition" class="form-label small fw-semibold text-secondary">Edition</label>
+                                    <input type="text" th:field="*{edition}" class="form-control" id="edition" placeholder="3rd Edition">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label for="totalCopies" class="form-label small fw-semibold text-secondary">Total Copies Acquired</label>
+                                    <input type="number" th:field="*{totalCopies}" class="form-control" id="totalCopies" min="1" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="availableCopies" class="form-label small fw-semibold text-secondary">Available Copies (Initial)</label>
+                                    <input type="number" th:field="*{availableCopies}" class="form-control" id="availableCopies" min="0" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="locationShelf" class="form-label small fw-semibold text-secondary">Physical Shelf Location</label>
+                                    <input type="text" th:field="*{locationShelf}" class="form-control" id="locationShelf" placeholder="e.g. Shelf CS-01">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="description" class="form-label small fw-semibold text-secondary">Description & Abstract</label>
+                                <textarea th:field="*{description}" id="description" rows="3" class="form-control" placeholder="Provide book summary for semantic retrieval indexing"></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <a th:href="@{/admin/books}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
+                                    <i class="bi bi-check2-circle me-1"></i> Save & Index Book
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

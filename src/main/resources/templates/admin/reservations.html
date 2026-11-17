@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Seat Reservations Management')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('admin-reservations')}"></aside>
+        <main class="main-content">
+            <!-- Flash Message Alerts -->
+            <div th:replace="~{common/layout :: alerts}"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Study Seat Reservations Ledger</h2>
+                    <p class="text-muted mb-0">Audit seat booking records, usage slots, and member reservations.</p>
+                </div>
+            </div>
+
+            <div class="card card-custom p-3 mb-4 bg-white">
+                <form th:action="@{/admin/reservations}" method="get" class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <input type="date" name="date" class="form-control" th:value="${selectedDate}" onchange="this.form.submit()">
+                    </div>
+                    <div class="col-md-8 text-md-end text-muted small">
+                        Filter reservations by date (Leave blank for all)
+                    </div>
+                </form>
+            </div>
+
+            <div class="card card-custom">
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${reservations.totalElements > 0}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Seat Number</th>
+                                    <th>Floor & Zone</th>
+                                    <th>Student</th>
+                                    <th>Date</th>
+                                    <th>Time Slot</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="r : ${reservations.content}">
+                                    <td class="text-muted small" th:text="'#' + ${r.id}">#1</td>
+                                    <td class="fw-bold text-dark" th:text="${r.seat.seatNumber}">S-101</td>
+                                    <td th:text="${r.seat.floor} + ' (' + ${r.seat.section} + ')'">Floor</td>
+                                    <td>
+                                        <div class="fw-semibold text-dark" th:text="${r.user.fullName}">Name</div>
+                                        <div class="small text-muted" th:text="${r.user.username}">Username</div>
+                                    </td>
+                                    <td th:text="${r.reservationDate}">Date</td>
+                                    <td th:text="${r.timeSlot}">Slot</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${r.status.name() == 'CONFIRMED'} ? 'bg-success' : 'bg-secondary'" th:text="${r.status}">CONFIRMED</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${reservations.totalElements == 0}" class="p-5 text-center text-muted">
+                        No seat reservations found.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

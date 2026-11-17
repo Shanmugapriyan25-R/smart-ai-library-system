@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Welcome to Smart AI Library')}"></head>
+<body class="bg-light">
+    <!-- Top Nav -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container px-3">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="bi bi-book-half text-primary fs-3"></i>
+                <span class="ms-1">Smart AI Library</span>
+                <span class="brand-badge ms-2"><i class="bi bi-stars"></i> JAVA EDITION</span>
+            </a>
+            <div class="ms-auto d-flex gap-2">
+                <a th:href="@{/login}" class="btn btn-outline-primary rounded-pill px-3">Sign In</a>
+                <a th:href="@{/register}" class="btn btn-primary rounded-pill px-3">Student Registration</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="py-5 bg-white border-bottom">
+        <div class="container py-4 text-center">
+            <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill fw-semibold mb-3">
+                <i class="bi bi-cpu me-1"></i> Spring Boot 3 + MySQL + Java RAG Architecture
+            </span>
+            <h1 class="display-4 fw-bold text-dark mb-3">Next-Generation Intelligent Library Management</h1>
+            <p class="lead text-muted mx-auto mb-4" style="max-width: 720px;">
+                Experience seamless physical book circulation, verified catalogue search, RAG-grounded AI assistance, digital document reading, and seat reservations on a single unified platform.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a th:href="@{/login?portal=student}" class="btn btn-primary btn-lg rounded-pill px-4">
+                    <i class="bi bi-mortarboard me-2"></i> Student Portal
+                </a>
+                <a th:href="@{/login?portal=staff}" class="btn btn-teal btn-lg rounded-pill px-4">
+                    <i class="bi bi-briefcase me-2"></i> Staff Portal
+                </a>
+                <a th:href="@{/login?portal=admin}" class="btn btn-outline-dark btn-lg rounded-pill px-4">
+                    <i class="bi bi-shield-lock me-2"></i> Admin Portal
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three Portal Feature Cards -->
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Student Portal Card -->
+            <div class="col-md-4">
+                <div class="card card-custom h-100 p-4">
+                    <div class="stat-icon blue mb-3">
+                        <i class="bi bi-mortarboard fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Student Portal</h4>
+                    <p class="text-muted small">
+                        Browse the catalogue, submit book loan requests, track due dates, converse with the AI Assistant, read digital PDFs with PDF.js, and book quiet study carrels.
+                    </p>
+                    <div class="mt-auto pt-3 border-top">
+                        <a th:href="@{/login?portal=student}" class="text-primary fw-semibold text-decoration-none">
+                            Enter Student Portal <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Portal Card -->
+            <div class="col-md-4">
+                <div class="card card-custom h-100 p-4">
+                    <div class="stat-icon teal mb-3">
+                        <i class="bi bi-person-workspace fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Staff Portal</h4>
+                    <p class="text-muted small">
+                        Review and approve student book requests, record checkouts and returns, enforce borrowing limits, track overdue items with automated fines, and oversee seating.
+                    </p>
+                    <div class="mt-auto pt-3 border-top">
+                        <a th:href="@{/login?portal=staff}" class="text-teal fw-semibold text-decoration-none">
+                            Enter Staff Portal <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Portal Card -->
+            <div class="col-md-4">
+                <div class="card card-custom h-100 p-4">
+                    <div class="stat-icon amber mb-3">
+                        <i class="bi bi-shield-lock fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Admin Portal</h4>
+                    <p class="text-muted small">
+                        Full administrative oversight: manage student/staff accounts, configure borrowing rules and daily fines, rebuild vector search indexes, and review audit logs.
+                    </p>
+                    <div class="mt-auto pt-3 border-top">
+                        <a th:href="@{/login?portal=admin}" class="text-dark fw-semibold text-decoration-none">
+                            Enter Admin Portal <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Architecture Highlights -->
+        <div class="row g-4 mt-4">
+            <div class="col-md-3">
+                <div class="p-3 bg-white border rounded text-center">
+                    <i class="bi bi-robot text-primary fs-3 d-block mb-1"></i>
+                    <h6 class="fw-bold mb-1">RAG Grounded AI</h6>
+                    <small class="text-muted">Direct database verification</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-white border rounded text-center">
+                    <i class="bi bi-file-earmark-pdf text-danger fs-3 d-block mb-1"></i>
+                    <h6 class="fw-bold mb-1">PDF.js Reader</h6>
+                    <small class="text-muted">Digital document progress tracking</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-white border rounded text-center">
+                    <i class="bi bi-stopwatch text-success fs-3 d-block mb-1"></i>
+                    <h6 class="fw-bold mb-1">Pomodoro Timer</h6>
+                    <small class="text-muted">Focus tracking & session logging</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-white border rounded text-center">
+                    <i class="bi bi-calendar2-week text-info fs-3 d-block mb-1"></i>
+                    <h6 class="fw-bold mb-1">Seat Booking</h6>
+                    <small class="text-muted">Transactional conflict prevention</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-4 bg-white border-top text-center text-muted small mt-auto">
+        <div class="container">
+            Smart AI Library Management System &bull; Java 17/21 LTS &bull; Spring Boot 3 &bull; MySQL &bull; Flyway Migrations
+        </div>
+    </footer>
+</body>
+</html>

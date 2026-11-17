@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('All Circulation Transactions')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('admin-transactions')}"></aside>
+        <main class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Circulation Transactions Ledger</h2>
+                    <p class="text-muted mb-0">Complete historical record of all loans, renewals, returns, and assessed fines.</p>
+                </div>
+            </div>
+
+            <div class="card card-custom">
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${transactions.totalElements > 0}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Loan ID</th>
+                                    <th>Student</th>
+                                    <th>Book Title</th>
+                                    <th>Issued On</th>
+                                    <th>Due Date</th>
+                                    <th>Returned On</th>
+                                    <th>Status</th>
+                                    <th>Fine Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tx : ${transactions.content}">
+                                    <td class="small text-muted" th:text="'#' + ${tx.id}">#1</td>
+                                    <td>
+                                        <div class="fw-semibold text-dark" th:text="${tx.user.fullName}">Name</div>
+                                        <div class="small text-muted" th:text="${tx.user.username}">Username</div>
+                                    </td>
+                                    <td class="fw-semibold text-dark" th:text="${tx.book.title}">Title</td>
+                                    <td class="small text-muted" th:text="${#temporals.format(tx.issueDate, 'dd MMM yyyy')}">Issue</td>
+                                    <td class="small text-muted" th:text="${#temporals.format(tx.dueDate, 'dd MMM yyyy')}">Due</td>
+                                    <td class="small text-muted" th:text="${tx.returnDate != null ? #temporals.format(tx.returnDate, 'dd MMM yyyy') : '-'}">Return</td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${tx.status.name() == 'ISSUED'} ? (${tx.overdue} ? 'bg-danger' : 'bg-primary') : 'bg-secondary'"
+                                              th:text="${tx.status}">Status</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${tx.fineAmount.doubleValue() > 0}" class="text-danger fw-bold" th:text="'$' + ${tx.fineAmount}">$0.00</span>
+                                        <span th:unless="${tx.fineAmount.doubleValue() > 0}" class="text-muted">$0.00</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

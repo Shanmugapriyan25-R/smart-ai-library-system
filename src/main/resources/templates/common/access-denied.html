@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Access Denied')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="container my-5 text-center">
+        <div class="card card-custom p-5 mx-auto" style="max-width: 600px;">
+            <div class="mb-4">
+                <i class="bi bi-shield-lock-fill text-warning" style="font-size: 4rem;"></i>
+            </div>
+            <h2 class="fw-bold text-dark">Access Denied (403)</h2>
+            <p class="text-muted mt-2">You do not possess the required security privileges or portal role to view this restricted endpoint.</p>
+            <div class="mt-4">
+                <a th:href="@{/}" class="btn btn-primary px-4 rounded-pill">Return to Safe Portal</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

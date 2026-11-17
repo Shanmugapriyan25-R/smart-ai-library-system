@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Student Registration')}"></head>
+<body class="bg-light d-flex align-items-center justify-content-center py-5">
+    <div class="container" style="max-width: 520px;">
+        <div class="text-center mb-4">
+            <a th:href="@{/}" class="text-decoration-none">
+                <i class="bi bi-book-half text-primary fs-1"></i>
+                <h3 class="fw-bold text-dark mt-2">Smart Library System</h3>
+            </a>
+            <span class="badge bg-primary-light text-primary px-3 py-1 rounded-pill fw-semibold">
+                Student Self-Registration
+            </span>
+        </div>
+
+        <div class="card card-custom p-4 shadow-sm">
+            <form th:action="@{/register}" th:object="${userDto}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <div class="mb-3">
+                    <label for="fullName" class="form-label small fw-semibold text-secondary">Full Name</label>
+                    <input type="text" th:field="*{fullName}" class="form-control" id="fullName" placeholder="e.g. Alex Morgan" required>
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label small fw-semibold text-secondary">Username</label>
+                    <input type="text" th:field="*{username}" class="form-control" id="username" placeholder="Choose a unique username" required>
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label small fw-semibold text-secondary">Email Address</label>
+                    <input type="email" th:field="*{email}" class="form-control" id="email" placeholder="student@smartlibrary.com" required>
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="phone" class="form-label small fw-semibold text-secondary">Phone Number (Optional)</label>
+                    <input type="tel" th:field="*{phone}" class="form-control" id="phone" placeholder="+1-555-0144">
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label small fw-semibold text-secondary">Password</label>
+                    <input type="password" th:field="*{password}" class="form-control" id="password" required placeholder="Minimum 6 characters">
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+
+                <div class="alert alert-light border small text-muted">
+                    <i class="bi bi-info-circle me-1 text-primary"></i> Self-registration is strictly for students. Staff and Administrative accounts must be provisioned by the Library Administrator.
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-pill mt-2">
+                    <i class="bi bi-check2-circle me-1"></i> Register Student Account
+                </button>
+            </form>
+        </div>
+
+        <div class="text-center mt-3">
+            <span class="text-muted small">Already have an account?</span>
+            <a th:href="@{/login?portal=student}" class="text-primary small fw-semibold text-decoration-none ms-1">Sign in here</a>
+        </div>
+    </div>
+</body>
+</html>

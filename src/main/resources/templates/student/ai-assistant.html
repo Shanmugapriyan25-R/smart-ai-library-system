@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('AI Library Assistant')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('ai-assistant')}"></aside>
+        <main class="main-content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">AI Library Assistant & RAG Q&A</h2>
+                    <p class="text-muted mb-0">Ask natural-language questions grounded strictly in verified library database records.</p>
+                </div>
+                <div id="ai-status-pill">
+                    <span class="badge bg-light text-muted border"><i class="bi bi-clock me-1"></i> Checking Engine...</span>
+                </div>
+            </div>
+
+            <!-- Chat Window -->
+            <div class="ai-chat-container shadow-sm">
+                <!-- Chat Messages Scroll Area -->
+                <div class="ai-chat-messages" id="ai-chat-messages">
+                    <!-- Default Greeting Message -->
+                    <div class="chat-message ai">
+                        <span class="ai-meta-badge"><i class="bi bi-stars text-primary me-1"></i> Verified Library Assistant</span>
+                        <div>
+                            Hello! I am your <strong>Smart AI Library Assistant</strong>. I have direct access to our verified library book catalogue, real-time stock levels, and digital research archives.
+                            <br><br>
+                            You can ask me questions like:
+                            <ul class="mb-2 mt-1 ps-3">
+                                <li><em>"Which algorithms textbooks are currently in stock and where are they located?"</em></li>
+                                <li><em>"Can you find books on deep learning and neural networks?"</em></li>
+                                <li><em>"What is the call number or shelf for Effective Java?"</em></li>
+                            </ul>
+                            What would you like to explore today?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="ai-chat-input-area">
+                    <!-- Quick Prompt Suggestions -->
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill text-secondary px-2"
+                                onclick="setPrompt('What textbooks on algorithms and data structures are available in the library?')">
+                            Algorithms & Data Structures
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill text-secondary px-2"
+                                onclick="setPrompt('Where is Clean Code located and how many copies are in stock?')">
+                            Clean Code Location
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill text-secondary px-2"
+                                onclick="setPrompt('Do you have books on deep learning, neural networks, or artificial intelligence?')">
+                            Deep Learning & AI
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill text-secondary px-2"
+                                onclick="setPrompt('What is the ISBN and author of Operating System Concepts?')">
+                            Operating Systems
+                        </button>
+                    </div>
+
+                    <!-- Input Form -->
+                    <form id="ai-chat-form" class="d-flex gap-2">
+                        <input type="text" id="ai-query-input" class="form-control py-2"
+                               placeholder="Type your question or request a book recommendation..." required autocomplete="off">
+                        <button type="submit" id="ai-send-btn" class="btn btn-primary px-4 fw-semibold">
+                            <i class="bi bi-send-fill me-1"></i> Ask
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Page Scripts -->
+    <script th:src="@{/js/ai-chat.js}"></script>
+    <script>
+        function setPrompt(text) {
+            const input = document.getElementById('ai-query-input');
+            input.value = text;
+            input.focus();
+        }
+    </script>
+</body>
+</html>

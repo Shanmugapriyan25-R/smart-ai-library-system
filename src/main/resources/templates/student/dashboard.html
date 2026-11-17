@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Student Dashboard')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('dashboard')}"></aside>
+        <main class="main-content">
+            <!-- Flash Message Alerts -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Welcome Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Student Dashboard</h2>
+                    <p class="text-muted mb-0">Welcome back, <strong th:text="${user.fullName}">Student</strong>! Manage your loans, reservations, and research.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/student/ai-assistant}" class="btn btn-primary rounded-pill px-3">
+                        <i class="bi bi-robot me-1"></i> Ask AI Assistant
+                    </a>
+                    <a th:href="@{/student/catalogue}" class="btn btn-outline-primary rounded-pill px-3">
+                        <i class="bi bi-search me-1"></i> Browse Books
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Overview Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="bi bi-journal-bookmark"></i></div>
+                        <div>
+                            <div class="stat-val" th:text="${summary.activeBorrowings}">0</div>
+                            <div class="stat-title">Active Book Loans</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                        <div>
+                            <div class="stat-val" th:text="${summary.pendingRequests}">0</div>
+                            <div class="stat-title">Pending Issue Requests</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon teal"><i class="bi bi-stopwatch"></i></div>
+                        <div>
+                            <div class="stat-val" th:text="${summary.studyMinutesLogged}">0</div>
+                            <div class="stat-title">Total Study Minutes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Borrowed Books Section -->
+            <div class="card card-custom mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-book me-2 text-primary"></i> Currently Borrowed Books</span>
+                    <a th:href="@{/student/my-loans}" class="small text-primary text-decoration-none">View Full History</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(activeLoans)}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title & Author</th>
+                                    <th>Loan Date</th>
+                                    <th>Due Date</th>
+                                    <th>Shelf Location</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tx : ${activeLoans}">
+                                    <td>
+                                        <div class="fw-semibold text-dark" th:text="${tx.book.title}">Title</div>
+                                        <div class="small text-muted" th:text="${tx.book.author}">Author</div>
+                                    </td>
+                                    <td th:text="${#temporals.format(tx.issueDate, 'dd MMM yyyy')}">Date</td>
+                                    <td>
+                                        <span th:class="${tx.overdue} ? 'text-danger fw-bold' : 'text-dark'"
+                                              th:text="${#temporals.format(tx.dueDate, 'dd MMM yyyy')}">Date</span>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border" th:text="${tx.book.locationShelf ?: 'Main Stacks'}">Shelf</span></td>
+                                    <td>
+                                        <span th:if="${tx.overdue}" class="badge bg-danger">Overdue</span>
+                                        <span th:unless="${tx.overdue}" class="badge bg-success">Active Loan</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${#lists.isEmpty(activeLoans)}" class="p-4 text-center text-muted">
+                        <i class="bi bi-journal-check fs-2 text-muted d-block mb-2"></i>
+                        You do not have any active book loans. Ready to start reading?
+                        <div class="mt-2">
+                            <a th:href="@{/student/catalogue}" class="btn btn-sm btn-outline-primary">Browse Library Catalogue</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Column Quick Modules -->
+            <div class="row g-4">
+                <!-- Upcoming Seat Reservations -->
+                <div class="col-md-6">
+                    <div class="card card-custom h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="fw-bold"><i class="bi bi-calendar-event me-2 text-teal"></i> Upcoming Seat Bookings</span>
+                            <a th:href="@{/student/seats}" class="small text-teal text-decoration-none">Reserve Seat</a>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${not #lists.isEmpty(upcomingReservations)}" class="d-flex flex-column gap-2">
+                                <div th:each="res : ${upcomingReservations}" class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold text-dark" th:text="'Seat ' + ${res.seat.seatNumber} + ' (' + ${res.seat.floor} + ')'">Seat S-101</div>
+                                        <div class="small text-muted" th:text="${res.reservationDate} + ' &bull; ' + ${res.timeSlot}">Date & Slot</div>
+                                    </div>
+                                    <span class="badge bg-success">Confirmed</span>
+                                </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(upcomingReservations)}" class="text-center text-muted py-4">
+                                <i class="bi bi-calendar-x fs-2 d-block mb-1"></i>
+                                No upcoming seat reservations.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Books -->
+                <div class="col-md-6">
+                    <div class="card card-custom h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="fw-bold"><i class="bi bi-stars me-2 text-warning"></i> Recently Added In Library</span>
+                            <a th:href="@{/student/catalogue}" class="small text-primary text-decoration-none">Explore All</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-column gap-2">
+                                <div th:each="book : ${recentBooks}" class="p-2 border rounded d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold text-dark" th:text="${book.title}">Book Title</div>
+                                        <div class="small text-muted" th:text="${book.author} + ' &bull; ' + ${book.category.name}">Author</div>
+                                    </div>
+                                    <div>
+                                        <span th:if="${book.available}" class="badge bg-success me-2">In Stock</span>
+                                        <span th:unless="${book.available}" class="badge bg-danger me-2">Unavailable</span>
+                                        <a th:href="@{/student/books/{id}(id=${book.id})}" class="btn btn-sm btn-outline-primary">View</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

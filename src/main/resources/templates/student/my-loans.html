@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('My Loans & Requests')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('my-loans')}"></aside>
+        <main class="main-content">
+            <!-- Flash Message Alerts -->
+            <div th:replace="~{common/layout :: alerts}"></div>
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">My Loans & Circulation Requests</h2>
+                    <p class="text-muted mb-0">Track your active borrowed volumes, pending library requests, and borrowing record.</p>
+                </div>
+                <a th:href="@{/student/catalogue}" class="btn btn-outline-primary rounded-pill px-3">
+                    <i class="bi bi-search me-1"></i> Browse More Books
+                </a>
+            </div>
+
+            <!-- Pending Issue Requests -->
+            <div class="card card-custom mb-4">
+                <div class="card-header fw-bold text-dark">
+                    <i class="bi bi-hourglass-split me-2 text-warning"></i> Pending Book Requests
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(pendingRequests)}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th>Author</th>
+                                    <th>Request Date</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="req : ${pendingRequests}">
+                                    <td class="fw-semibold text-dark" th:text="${req.book.title}">Book Title</td>
+                                    <td th:text="${req.book.author}">Author</td>
+                                    <td th:text="${#temporals.format(req.requestDate, 'dd MMM yyyy, HH:mm')}">Date</td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${req.status.name() == 'PENDING'} ? 'bg-warning text-dark' :
+                                                             (${req.status.name() == 'APPROVED'} ? 'bg-success' : 'bg-danger')"
+                                              th:text="${req.status}">Status</span>
+                                    </td>
+                                    <td class="small text-muted" th:text="${req.remarks ?: '-'}">-</td>
+                                    <td class="text-end">
+                                        <form th:if="${req.status.name() == 'PENDING'}" th:action="@{/student/cancel-request/{id}(id=${req.id})}" method="post" class="d-inline">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this issue request?');">
+                                                <i class="bi bi-x-circle me-1"></i> Cancel
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${#lists.isEmpty(pendingRequests)}" class="p-3 text-center text-muted small">
+                        No pending issue requests.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Borrowed Books -->
+            <div class="card card-custom mb-4">
+                <div class="card-header fw-bold text-dark">
+                    <i class="bi bi-journal-bookmark me-2 text-primary"></i> Currently Borrowed Volumes
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(activeLoans)}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Book Title & Author</th>
+                                    <th>Issue Date</th>
+                                    <th>Due Date</th>
+                                    <th>Shelf Location</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tx : ${activeLoans}">
+                                    <td>
+                                        <div class="fw-semibold text-dark" th:text="${tx.book.title}">Title</div>
+                                        <div class="small text-muted" th:text="${tx.book.author}">Author</div>
+                                    </td>
+                                    <td th:text="${#temporals.format(tx.issueDate, 'dd MMM yyyy')}">Date</td>
+                                    <td>
+                                        <span th:class="${tx.overdue} ? 'text-danger fw-bold' : 'text-dark'"
+                                              th:text="${#temporals.format(tx.dueDate, 'dd MMM yyyy')}">Date</span>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border" th:text="${tx.book.locationShelf ?: 'Main Stacks'}">Shelf</span></td>
+                                    <td>
+                                        <span th:if="${tx.overdue}" class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i> Overdue</span>
+                                        <span th:unless="${tx.overdue}" class="badge bg-success">Active Loan</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${#lists.isEmpty(activeLoans)}" class="p-3 text-center text-muted small">
+                        No books currently borrowed.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Borrowing Record -->
+            <div class="card card-custom mb-4">
+                <div class="card-header fw-bold text-dark">
+                    <i class="bi bi-clock-history me-2 text-secondary"></i> Circulation History & Past Returns
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${history.totalElements > 0}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th>Issue Date</th>
+                                    <th>Return Date</th>
+                                    <th>Status</th>
+                                    <th>Fine Incurred</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tx : ${history.content}">
+                                    <td class="fw-semibold text-dark" th:text="${tx.book.title}">Title</td>
+                                    <td th:text="${#temporals.format(tx.issueDate, 'dd MMM yyyy')}">Date</td>
+                                    <td th:text="${tx.returnDate != null ? #temporals.format(tx.returnDate, 'dd MMM yyyy') : 'Still Out'}">Return</td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${tx.status.name() == 'RETURNED'} ? 'bg-secondary' : 'bg-success'"
+                                              th:text="${tx.status}">Status</span>
+                                    </td>
+                                    <td th:text="${tx.fineAmount.doubleValue() > 0 ? '$' + tx.fineAmount : '$0.00'}">$0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${history.totalElements == 0}" class="p-3 text-center text-muted small">
+                        No previous borrowing history.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

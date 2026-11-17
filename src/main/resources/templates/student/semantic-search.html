@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Semantic Book Search')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('semantic-search')}"></aside>
+        <main class="main-content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Semantic Vector Book Search</h2>
+                    <p class="text-muted mb-0">Search books by conceptual intent and natural topics using vector embeddings.</p>
+                </div>
+                <a th:href="@{/student/catalogue}" class="btn btn-outline-primary rounded-pill px-3">
+                    <i class="bi bi-book me-1"></i> Standard Catalogue View
+                </a>
+            </div>
+
+            <!-- Search Form Card -->
+            <div class="card card-custom p-4 mb-4 bg-white">
+                <form id="semantic-search-form">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-diagram-3 text-primary"></i></span>
+                        <input type="text" id="semantic-query-input" class="form-control border-start-0"
+                               placeholder="Describe what you want to learn (e.g. 'writing clean maintainable software without bugs', 'distributed systems and consensus')" required>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                            <i class="bi bi-search me-1"></i> Search Vector Index
+                        </button>
+                    </div>
+
+                    <!-- Example Concept Query Chips -->
+                    <div class="d-flex flex-wrap gap-2 mt-3 align-items-center">
+                        <span class="small text-muted me-1">Try exploring:</span>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2"
+                                onclick="setSemanticQuery('how to write high quality maintainable software design patterns')">
+                            Software Craftsmanship
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2"
+                                onclick="setSemanticQuery('scalable data systems replication partitioning and fault tolerance')">
+                            Data-Intensive Systems
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2"
+                                onclick="setSemanticQuery('deep neural networks backpropagation gradient descent and transformers')">
+                            Neural Networks & Deep Learning
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2"
+                                onclick="setSemanticQuery('graph algorithms shortest path dynamic programming complexity')">
+                            Graph Algorithms & Complexity
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="semantic-loading" class="text-center py-5 d-none">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="mt-2 text-muted">Calculating query vector embeddings and scanning cosine distances...</div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="semantic-empty" class="card card-custom p-5 text-center my-4 d-none">
+                <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+                <h5 class="fw-bold text-dark">No Vector Matches Found</h5>
+                <p class="text-muted">No catalogue records matched your conceptual query with high confidence. Try broadening your terms.</p>
+            </div>
+
+            <!-- Results Row -->
+            <div class="row g-4" id="semantic-results-container">
+                <!-- Injected via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Page Scripts -->
+    <script th:src="@{/js/semantic-search.js}"></script>
+    <script>
+        function setSemanticQuery(text) {
+            const input = document.getElementById('semantic-query-input');
+            input.value = text;
+            document.getElementById('semantic-search-form').dispatchEvent(new Event('submit'));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Process Book Returns')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('staff-returns')}"></aside>
+        <main class="main-content">
+            <!-- Flash Message Alerts -->
+            <div th:replace="~{common/layout :: alerts}"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Book Return Management</h2>
+                    <p class="text-muted mb-0">Record physical returns, restore catalogue stock, and assess overdue fines.</p>
+                </div>
+            </div>
+
+            <div class="card card-custom">
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${transactions.totalElements > 0}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Loan ID</th>
+                                    <th>Borrower</th>
+                                    <th>Book Title</th>
+                                    <th>Issue Date</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tx : ${transactions.content}">
+                                    <td class="text-muted small" th:text="'#' + ${tx.id}">#1</td>
+                                    <td>
+                                        <div class="fw-semibold text-dark" th:text="${tx.user.fullName}">Name</div>
+                                        <div class="small text-muted" th:text="${tx.user.email}">Email</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark" th:text="${tx.book.title}">Title</div>
+                                        <div class="small text-muted" th:text="'Shelf: ' + (${tx.book.locationShelf ?: 'Main'})">Shelf</div>
+                                    </td>
+                                    <td th:text="${#temporals.format(tx.issueDate, 'dd MMM yyyy')}">Date</td>
+                                    <td>
+                                        <span th:class="${tx.overdue} ? 'text-danger fw-bold' : 'text-dark'"
+                                              th:text="${#temporals.format(tx.dueDate, 'dd MMM yyyy')}">Due</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${tx.status.name() == 'ISSUED'} ? (${tx.overdue} ? 'bg-danger' : 'bg-primary') : 'bg-secondary'"
+                                              th:text="${tx.status.name() == 'ISSUED'} ? (${tx.overdue} ? 'OVERDUE' : 'ON LOAN') : 'RETURNED'">Status</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div th:if="${tx.status.name() == 'ISSUED'}">
+                                            <form th:action="@{/staff/record-return/{id}(id=${tx.id})}" method="post" class="d-inline">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3"
+                                                        onclick="return confirm('Confirm receipt and restore inventory for this book?');">
+                                                    <i class="bi bi-box-arrow-in-left me-1"></i> Receive Return
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div th:if="${tx.status.name() == 'RETURNED'}" class="small text-muted">
+                                            Returned on <span th:text="${#temporals.format(tx.returnDate, 'dd MMM yyyy')}">Date</span>
+                                            <span th:if="${tx.fineAmount.doubleValue() > 0}" class="text-danger fw-semibold d-block">
+                                                Fine: $<span th:text="${tx.fineAmount}">0.00</span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Edit User Account')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('admin-users')}"></aside>
+        <main class="main-content">
+            <div class="mb-4">
+                <a th:href="@{/admin/users}" class="text-muted text-decoration-none small">
+                    <i class="bi bi-arrow-left me-1"></i> Back to User Directory
+                </a>
+                <h2 class="fw-bold text-dark mt-2 mb-1">Edit User Account: <span class="text-primary" th:text="${userDto.username}">user</span></h2>
+                <p class="text-muted mb-0">Modify user roles, credentials, and contact details.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-custom p-4">
+                        <form th:action="@{/admin/users/edit/{id}(id=${userDto.id})}" th:object="${userDto}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <input type="hidden" th:field="*{id}" />
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-secondary">Username (Immutable)</label>
+                                    <input type="text" class="form-control bg-light" th:value="*{username}" disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="role" class="form-label small fw-semibold text-secondary">Portal Role</label>
+                                    <select th:field="*{role}" class="form-select" id="role">
+                                        <option th:each="r : ${roles}" th:value="${r}" th:text="${r.displayRole}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="fullName" class="form-label small fw-semibold text-secondary">Full Name</label>
+                                <input type="text" th:field="*{fullName}" class="form-control" id="fullName" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label small fw-semibold text-secondary">Email Address</label>
+                                    <input type="email" th:field="*{email}" class="form-control" id="email" required>
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label small fw-semibold text-secondary">Phone Number</label>
+                                    <input type="tel" th:field="*{phone}" class="form-control" id="phone">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label small fw-semibold text-secondary">Account Status</label>
+                                    <select th:field="*{status}" class="form-select" id="status">
+                                        <option value="ACTIVE">ACTIVE</option>
+                                        <option value="SUSPENDED">SUSPENDED</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="password" class="form-label small fw-semibold text-secondary">Reset Password (Optional)</label>
+                                    <input type="password" th:field="*{password}" class="form-control" id="password" placeholder="Leave blank to keep current">
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <a th:href="@{/admin/users}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
+                                    <i class="bi bi-save me-1"></i> Update Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

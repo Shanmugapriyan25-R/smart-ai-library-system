@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head(${book.title})}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('catalogue')}"></aside>
+        <main class="main-content">
+            <div class="mb-3">
+                <a th:href="@{/student/catalogue}" class="text-muted text-decoration-none small">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Catalogue
+                </a>
+            </div>
+
+            <div class="row g-4">
+                <!-- Book Info Column -->
+                <div class="col-lg-8">
+                    <div class="card card-custom p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary-light text-primary" th:text="${book.category.name}">Category</span>
+                            <span th:if="${book.available}" class="badge bg-success fs-6" th:text="${book.availableCopies} + ' of ' + ${book.totalCopies} + ' copies available'">Available</span>
+                            <span th:unless="${book.available}" class="badge bg-danger fs-6">Out of Stock (0 Available)</span>
+                        </div>
+                        <h2 class="fw-bold text-dark mt-2 mb-1" th:text="${book.title}">Book Title</h2>
+                        <div class="text-muted fs-5 mb-3">By <span th:text="${book.author}">Author</span></div>
+
+                        <hr class="text-muted my-3">
+
+                        <h5 class="fw-bold text-dark mb-2">Book Overview & Abstract</h5>
+                        <p class="text-secondary leading-relaxed" th:text="${book.description != null ? book.description : 'No extended summary provided for this catalogue title.'}">
+                            Description
+                        </p>
+
+                        <h5 class="fw-bold text-dark mt-4 mb-3">Publication & Inventory Specifications</h5>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded border">
+                                    <div class="small text-muted">ISBN-13</div>
+                                    <div class="fw-semibold text-dark" th:text="${book.isbn}">ISBN</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded border">
+                                    <div class="small text-muted">Publisher & Year</div>
+                                    <div class="fw-semibold text-dark" th:text="(${book.publisher ?: 'Academic Press'}) + ' (' + (${book.publicationYear ?: 'N/A'}) + ')'">Publisher</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded border">
+                                    <div class="small text-muted">Edition</div>
+                                    <div class="fw-semibold text-dark" th:text="${book.edition ?: 'Standard Edition'}">Edition</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded border">
+                                    <div class="small text-muted">Physical Shelf Location</div>
+                                    <div class="fw-semibold text-primary" th:text="${book.locationShelf ?: 'Main Stacks'}">Shelf</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loan Request Column -->
+                <div class="col-lg-4">
+                    <div class="card card-custom p-4 shadow-sm">
+                        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-box-arrow-down me-2 text-primary"></i> Borrow Book</h5>
+
+                        <div th:if="${book.available}">
+                            <p class="small text-muted">
+                                Submit a book loan request. Once submitted, library staff will approve the checkout at the circulation desk.
+                            </p>
+                            <form th:action="@{/student/request-issue}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="hidden" name="bookId" th:value="${book.id}" />
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-secondary">Student Name</label>
+                                    <input type="text" class="form-control" th:value="${user.fullName}" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="remarks" class="form-label small fw-semibold text-secondary">Remarks or Course Notes (Optional)</label>
+                                    <textarea name="remarks" id="remarks" rows="2" class="form-control" placeholder="e.g. For CS401 assignment..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-pill">
+                                    <i class="bi bi-send-check me-1"></i> Submit Issue Request
+                                </button>
+                            </form>
+                        </div>
+
+                        <div th:unless="${book.available}" class="text-center py-4">
+                            <i class="bi bi-clock-history fs-2 text-danger d-block mb-2"></i>
+                            <h6 class="fw-bold text-dark">No Copies Available</h6>
+                            <p class="small text-muted">
+                                All physical copies of this book are currently on loan. Please check back later or consult the AI Assistant for alternative recommendations.
+                            </p>
+                            <a th:href="@{/student/ai-assistant}" class="btn btn-outline-primary btn-sm rounded-pill">
+                                <i class="bi bi-robot me-1"></i> Ask AI for Similar Titles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

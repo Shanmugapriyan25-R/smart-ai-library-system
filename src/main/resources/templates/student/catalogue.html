@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('Book Catalogue')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('catalogue')}"></aside>
+        <main class="main-content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Library Book Catalogue</h2>
+                    <p class="text-muted mb-0">Browse and search physical library volumes across disciplines.</p>
+                </div>
+                <a th:href="@{/student/semantic-search}" class="btn btn-teal rounded-pill px-3">
+                    <i class="bi bi-diagram-3 me-1"></i> Switch to Semantic Vector Search
+                </a>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="card card-custom mb-4 p-3 bg-white">
+                <form th:action="@{/student/catalogue}" method="get" class="row g-3 align-items-center">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" name="query" class="form-control" placeholder="Search by title, author, ISBN..." th:value="${query}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="category" class="form-select">
+                            <option value="">All Subject Categories</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${cat.id == selectedCategory}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="onlyAvailable" value="true" id="onlyAvailable" th:checked="${onlyAvailable}">
+                            <label class="form-check-label small fw-semibold" for="onlyAvailable">Available Only</label>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter"></i></button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Books Grid -->
+            <div class="row g-4" th:if="${books.totalElements > 0}">
+                <div class="col-md-6 col-lg-4" th:each="book : ${books.content}">
+                    <div class="card card-custom h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-primary-light text-primary" th:text="${book.category.name}">Category</span>
+                                <span th:if="${book.available}" class="badge bg-success" th:text="${book.availableCopies} + ' Available'">Available</span>
+                                <span th:unless="${book.available}" class="badge bg-danger">Out of Stock</span>
+                            </div>
+                            <h5 class="card-title fw-bold text-dark mt-1" th:text="${book.title}">Book Title</h5>
+                            <div class="text-muted small mb-2"><i class="bi bi-person me-1"></i> <span th:text="${book.author}">Author</span></div>
+                            <div class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i> Shelf: <strong th:text="${book.locationShelf ?: 'Main Stacks'}">Shelf</strong></div>
+                            <p class="card-text small text-secondary flex-grow-1" style="max-height: 80px; overflow: hidden; text-overflow: ellipsis;" th:text="${book.description}">
+                                Description
+                            </p>
+                            <div class="pt-3 border-top mt-auto d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-dark border" th:text="'ISBN: ' + ${book.isbn}">ISBN</span>
+                                <a th:href="@{/student/books/{id}(id=${book.id})}" class="btn btn-sm btn-outline-primary">Details & Request</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="card card-custom p-5 text-center my-4" th:if="${books.totalElements == 0}">
+                <i class="bi bi-journal-x fs-1 text-muted d-block mb-3"></i>
+                <h5 class="fw-bold text-dark">No Books Found</h5>
+                <p class="text-muted">No catalogue titles matched your search criteria. Try modifying your filters or searching by author.</p>
+                <div>
+                    <a th:href="@{/student/catalogue}" class="btn btn-sm btn-outline-primary">Reset Filters</a>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center mt-4" th:if="${books.totalPages > 1}">
+                <nav>
+                    <ul class="pagination pagination-sm">
+                        <li class="page-item" th:classappend="${books.first} ? 'disabled' : ''">
+                            <a class="page-link" th:href="@{/student/catalogue(page=${books.number - 1}, query=${query}, category=${selectedCategory}, onlyAvailable=${onlyAvailable})}">Previous</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, books.totalPages - 1)}"
+                            th:classappend="${i == books.number} ? 'active' : ''">
+                            <a class="page-link" th:href="@{/student/catalogue(page=${i}, query=${query}, category=${selectedCategory}, onlyAvailable=${onlyAvailable})}" th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${books.last} ? 'disabled' : ''">
+                            <a class="page-link" th:href="@{/student/catalogue(page=${books.number + 1}, query=${query}, category=${selectedCategory}, onlyAvailable=${onlyAvailable})}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

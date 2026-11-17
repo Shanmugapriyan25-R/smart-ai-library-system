@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/layout :: head('System & AI Settings')}"></head>
+<body>
+    <nav th:replace="~{common/layout :: navbar}"></nav>
+    <div class="app-container">
+        <aside th:replace="~{common/layout :: sidebar('admin-settings')}"></aside>
+        <main class="main-content">
+            <!-- Flash Message Alerts -->
+            <div th:replace="~{common/layout :: alerts}"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">System & AI Settings</h2>
+                    <p class="text-muted mb-0">Configure library borrowing policies, fine structures, and Google Gemini AI integration.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Settings Form Column -->
+                <div class="col-lg-8">
+                    <div class="card card-custom p-4 mb-4">
+                        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-sliders me-2 text-primary"></i> Library Circulation Rules</h5>
+                        <form th:action="@{/admin/settings}" th:object="${settingsForm}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label for="maxBorrowLimit" class="form-label small fw-semibold text-secondary">Max Borrow Limit / Student</label>
+                                    <input type="number" th:field="*{maxBorrowLimit}" class="form-control" id="maxBorrowLimit" min="1" max="20" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="borrowDurationDays" class="form-label small fw-semibold text-secondary">Loan Duration (Days)</label>
+                                    <input type="number" th:field="*{borrowDurationDays}" class="form-control" id="borrowDurationDays" min="1" max="90" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="dailyFineRate" class="form-label small fw-semibold text-secondary">Daily Overdue Fine ($)</label>
+                                    <input type="number" step="0.25" th:field="*{dailyFineRate}" class="form-control" id="dailyFineRate" min="0" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="allowStudentReservations" th:field="*{allowStudentReservations}">
+                                    <label class="form-check-label fw-semibold text-dark" for="allowStudentReservations">Allow Student Seat Reservations</label>
+                                    <div class="small text-muted">When enabled, verified students can reserve study desks up to 7 days in advance.</div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4 text-muted">
+
+                            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-stars me-2 text-primary"></i> AI Integration & Retrieval Engine</h5>
+
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="aiAssistantEnabled" th:field="*{aiAssistantEnabled}">
+                                    <label class="form-check-label fw-semibold text-dark" for="aiAssistantEnabled">Enable AI Assistant & RAG Q&A</label>
+                                    <div class="small text-muted">Master switch to enable semantic search and conversational library assistant.</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="geminiApiKey" class="form-label small fw-semibold text-secondary">Google Gemini API Key</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-key text-muted"></i></span>
+                                    <input type="password" th:field="*{geminiApiKey}" class="form-control" id="geminiApiKey"
+                                           placeholder="AIzaSy... (Leave blank to keep environment GEMINI_API_KEY)">
+                                </div>
+                                <div class="small text-muted mt-1">
+                                    <i class="bi bi-shield-lock me-1 text-success"></i> Secrets are stored securely in backend system settings and never exposed to client browsers.
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="geminiModel" class="form-label small fw-semibold text-secondary">LLM Model</label>
+                                    <select th:field="*{geminiModel}" class="form-select" id="geminiModel">
+                                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast, Recommended)</option>
+                                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Comprehensive Reasoning)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="semanticSearchThreshold" class="form-label small fw-semibold text-secondary">Cosine Similarity Cutoff</label>
+                                    <input type="number" step="0.05" th:field="*{semanticSearchThreshold}" class="form-control" id="semanticSearchThreshold" min="0.1" max="0.95">
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary px-4 rounded-pill fw-semibold">
+                                    <i class="bi bi-save me-1"></i> Save Configuration
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Vector Index Maintenance Column -->
+                <div class="col-lg-4">
+                    <div class="card card-custom p-4 mb-4">
+                        <h5 class="fw-bold text-dark mb-2"><i class="bi bi-cpu me-2 text-teal"></i> Vector Index Maintenance</h5>
+                        <p class="small text-muted mb-3">
+                            Rebuild the high-dimensional vector embeddings for all books and uploaded PDF documents. Use this whenever new bulk items are imported or fine-tuning thresholds.
+                        </p>
+                        <form th:action="@{/admin/rebuild-index}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="btn btn-outline-teal w-100 py-2 rounded-pill fw-semibold"
+                                    onclick="return confirm('Rebuild vector indexes for all books and digital documents?');">
+                                <i class="bi bi-arrow-repeat me-1"></i> Rebuild Vector Index
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card card-custom p-4 bg-light">
+                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle text-primary me-2"></i> Environment Status</h6>
+                        <ul class="list-unstyled small text-muted mb-0">
+                            <li class="mb-2">&bull; <strong>Runtime:</strong> Java 17/21 LTS &bull; Spring Boot 3.3.4</li>
+                            <li class="mb-2">&bull; <strong>Database:</strong> MySQL 8.0 with Flyway</li>
+                            <li class="mb-2">&bull; <strong>Embeddings:</strong> In-memory Cosine & Google Embedding API</li>
+                            <li>&bull; <strong>PDF Engine:</strong> Apache PDFBox + PDF.js</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
