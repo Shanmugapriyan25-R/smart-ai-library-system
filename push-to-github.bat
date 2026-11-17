@@ -10,3 +10,4 @@ if %errorlevel% equ 0 (
     echo [ERROR] Push failed. Make sure the repository 'smart-ai-library-system' exists on your GitHub account.
 )
 pause
+
